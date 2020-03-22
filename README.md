@@ -7,7 +7,7 @@ Updated by Chris Lapa for Python 3.6+
 ## Installation
 
 This version of etsy-python has not been pushed to pypi.org. Instead it can be installed from Github.
-pip install git+https://github.com/store-manager/etsy-python.git@0.4.0
+pip install git+https://github.com/store-manager/etsy-python.git@0.4.1
 
 ## Example with OAuth
 
@@ -73,6 +73,9 @@ api = EtsyAPI(method_cache=None)
 
 
 ## Version History
+
+### Version 0.4.1
+* Returns pagination details in API calls
 
 
 ### Version 0.4.0

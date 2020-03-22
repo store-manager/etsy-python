@@ -236,7 +236,7 @@ class EtsyAPI(object):
         return os.path.expanduser('~/.etsy')
 
     def get_method_table(self):
-        return self._execute('GET', '/')
+        return self._execute('GET', '/')[0]
 
     def _execute(self, http_method, url, **kwargs):
         for item in url.split('/'):
@@ -267,7 +267,6 @@ class EtsyAPI(object):
             except json.JSONDecodeError:
                 raise ValueError('Could not decode response from Etsy as JSON: %r' % data)
 
-            data['count']
-            return data['results']
-        return None
+            return data['results'], data.get('count', 0), data.get('pagination', {})
+        return None, 0, {}
 
