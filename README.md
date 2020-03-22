@@ -1,79 +1,42 @@
 # etsy-python
-Python access to the Etsy API
+Python access to the Etsy V2 API
 
 By Dan McKinley - dan@etsy.com - [http://mcfunley.com](http://mcfunley.com)
+Updated by Chris Lapa for Python 3.6+
 
 ## Installation
 
-The simplest way to install the module is using 
-[setuptools](http://pypi.python.org/pypi/setuptools).
+This version of etsy-python has not been pushed to pypi.org. Instead it can be installed from Github.
+pip install git+https://github.com/store-manager/etsy-python.git@0.4.0
+
+## Example with OAuth
+
+Register an app [here](https://www.etsy.com/developers/register).
 
 <pre>
-$ easy_install etsy
+from etsy import EtsyOAuthClient, EtsyAPI, EtsyEnvProduction
+
+app_scope = ["transactions_r", "listings_r"] # Valid values can be viewed [here](https://www.etsy.com/developers/documentation/getting_started/oauth#section_permission_scopes)
+user_token_path = 'access_token.json'
+oauth_consumer_key = '123456789' # Keystring from your Apps API here](https://www.etsy.com/developers/your-apps)
+oauth_consumer_secret = 'abcdef' # Shared secret from your Apps API [here](https://www.etsy.com/developers/your-apps)
+env = EtsyEnvProduction
+oauth = EtsyOAuthClient.load(user_token_path,
+                             oauth_consumer_key,
+                             oauth_consumer_secret,
+                             etsy_env=env)
+
+if not oauth.authorized:
+    signin_url = oauth.get_signin_url(app_scope)
+    print('Visit the following url in your browser, authorize the app and paste the signin code:')
+    print(signin_url)
+    code = input()
+    oauth.get_access_token(code)
+    oauth.save(user_token_path)
+
+api = EtsyAPI(oauth_client=oauth, etsy_env=env)
+print(api.inventory())
 </pre>
-
-To install from source, extract the tarball and use the following commands.
-
-<pre>
-$ python setup.py build
-$ sudo python setup.py install
-</pre>
-
-## Simple Example
-
-To use, first [register for an Etsy developer key](http://developer.etsy.com/).
-Below is an example session. 
-
-<pre>
-$ python
-python
-Python 2.5.1 (r251:54863, Feb  6 2009, 19:02:12) 
-[GCC 4.0.1 (Apple Inc. build 5465)] on darwin
-Type "help", "copyright", "credits" or "license" for more information.
->>> from etsy import Etsy
->>> api = Etsy('YOUR-API-KEY-HERE')
->>> api.getFrontFeaturedListings(offset=10, limit=1)[0]['title']
-'Artists Eco Journal -  Landscape Watercolor - Rustic Vegan Hemp and Recycled Rubber'
-</pre>
-
-
-See also [this blog post](http://codeascraft.etsy.com/2010/04/22/announcing-etsys-new-api/)
-on Code as Craft.
-
-
-## Configuration
-
-For convenience (and to avoid storing API keys in revision control
-systems), the package supports local configuration. You can manage
-your API keys in a file called $HOME/etsy/keys (or the equivalent on
-Windows) with the following format:
-
-<pre>
-v2 = 'Etsy API version 2 key goes here'
-</pre>
-
-Alternatively, you can specify a different key file when creating an API object.
-
-<pre>
-from etsy import Etsy
-
-api = Etsy(key_file='/usr/share/etsy/keys')
-</pre>
-
-(Implementation note: the keys file can be any valid python script that defines
-a module-level variable for the API version you are trying to use.)
-
-## Tests
-
-This package comes with a reasonably complete unit test suite. In order to run
-the tests, use:
-
-<pre>
-$ python setup.py test
-</pre>
-
-Some of the tests (those that actually call the Etsy API) require your API key
-to be locally configured. See the Configuration section, above.
 
 
 ## Method Table Caching
@@ -94,9 +57,9 @@ is placed in the machine's temp directory. By default, this cache lasts 24 hours
 The cache file can be specified when creating an API object:
 
 <pre>
-from etsy import Etsy
+from etsy import EtsyAPI
 
-api = Etsy(method_cache='myfile.json')
+api = EtsyAPI(method_cache='myfile.json')
 </pre>
 
 Method table caching can also be disabled by passing None as the cache parameter:
@@ -105,11 +68,23 @@ Method table caching can also be disabled by passing None as the cache parameter
 from etsy import Etsy
 
 # do not cache methods
-api = Etsy(method_cache=None)
+api = EtsyAPI(method_cache=None)
 </pre>
 
 
 ## Version History
+
+
+### Version 0.4.0
+* Major overhaul to work with Python3.6+
+* Removes deprecated oauth2 package and replaced with requests & requests-oauthlib
+* Made OAuth module work
+* Removed support for V1 Etsy API
+* Adds support for Etsy V2 API's which uses PUT and DELETE http methods
+* Improves logging implementation
+* General code cleanup
+* Adds support for saving/loading OAuth tokens to disk
+* Adds OAuth app scope format checking
 
 
 ### Version 0.3.1
